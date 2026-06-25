@@ -39,7 +39,7 @@ class ErsatzteilApp:
         
         self.combo_baugruppe = ttk.Combobox(self.top_frame, values=list(self.baugruppen_bilder.keys()), font=("Segoe UI", 12), state="readonly", width=30)
         self.combo_baugruppe.pack(side=tk.LEFT)
-        self.combo_baugruppe.current(0) # Wählt das erste Element standardmäßig aus
+        self.combo_baugruppe.current(0) 
         self.combo_baugruppe.bind("<<ComboboxSelected>>", self.baugruppe_gewechselt)
 
         # --- BILD ANZEIGEN ---
@@ -62,7 +62,8 @@ class ErsatzteilApp:
         self.result_frame = tk.Frame(self.right_frame, bg="#f4f4f9")
         
         scroll_y = tk.Scrollbar(self.result_frame, orient=tk.VERTICAL)
-        self.tree = ttk.Treeview(self.result_frame, columns=("pos", "code", "qta", "de", "it"), 
+        # 'it' wurde hier aus den Spalten entfernt
+        self.tree = ttk.Treeview(self.result_frame, columns=("pos", "code", "qta", "de"), 
                                  show="headings", yscrollcommand=scroll_y.set, height=15)
         scroll_y.config(command=self.tree.yview)
         
@@ -70,23 +71,20 @@ class ErsatzteilApp:
         self.tree.heading("code", text="Art.-Nr.")
         self.tree.heading("qta", text="Menge")
         self.tree.heading("de", text="Beschreibung (DE)")
-        self.tree.heading("it", text="Beschreibung (IT)")
         
         self.tree.column("pos", width=40, anchor="center")
         self.tree.column("code", width=80, anchor="center")
         self.tree.column("qta", width=50, anchor="center")
-        self.tree.column("de", width=150, anchor="w")
-        self.tree.column("it", width=200, anchor="w")
+        self.tree.column("de", width=250, anchor="w")
 
         scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.pack(fill=tk.BOTH, expand=True)
 
     def init_datenbank(self):
-        """Erstellt die SQL-Datenbank mit der neuen Spalte 'baugruppe'."""
+        """Erstellt die SQL-Datenbank (desc_it wurde entfernt)."""
         self.conn = sqlite3.connect("ersatzteile.db")
         self.cursor = self.conn.cursor()
 
-        # Tabelle erstellen: Die Kombination aus 'baugruppe' und 'pos' muss einzigartig sein
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS teile (
                 baugruppe TEXT,
@@ -94,42 +92,36 @@ class ErsatzteilApp:
                 codice TEXT,
                 qta TEXT,
                 desc_de TEXT,
-                desc_it TEXT,
                 PRIMARY KEY (baugruppe, pos)
             )
         ''')
 
-        # Prüfen, ob Tabelle leer ist. Wenn ja, Testdaten für ZWEI verschiedene Gruppen einfügen.
+        # Start-Testdaten einfügen, falls die DB leer ist
         self.cursor.execute("SELECT COUNT(*) FROM teile")
         if self.cursor.fetchone()[0] == 0:
             start_daten = [
-                # Daten für Basamento
-                ("Basamento (Seite 8)", "1", "451400", "2", "RING", "ANELLO PTFE"),
-                ("Basamento (Seite 8)", "2", "451405", "1", "KUPPLUNG HINTERE", "ATTACCO TERGI 14\" EVO-GL"),
-                ("Basamento (Seite 8)", "3", "409819", "1", "STÜTZPLATTE", "BASETTA TC 142 PER FASCETTE"),
+                ("Basamento (Seite 8)", "1", "451400", "2", "RING"),
+                ("Basamento (Seite 8)", "2", "451405", "1", "KUPPLUNG HINTERE"),
+                ("Basamento (Seite 8)", "3", "409819", "1", "STÜTZPLATTE"),
                 
-                # Daten für Motor (Hier wiederholt sich z.B. die POS 1 und 2!)
-                ("Motoriduttore (Seite 10)", "1", "451549", "1", "GEWINDEWELLE", "ALBERO CH=27"),
-                ("Motoriduttore (Seite 10)", "2", "439931", "2", "BUCHSE", "BOCCOLA D=15-10"),
-                ("Motoriduttore (Seite 10)", "3", "415901", "2", "MUTTER", "DADO M6 AUTOBL.")
+                ("Motoriduttore (Seite 10)", "1", "451549", "1", "GEWINDEWELLE"),
+                ("Motoriduttore (Seite 10)", "2", "439931", "2", "BUCHSE"),
+                ("Motoriduttore (Seite 10)", "3", "415901", "2", "MUTTER")
             ]
-            self.cursor.executemany("INSERT INTO teile (baugruppe, pos, codice, qta, desc_de, desc_it) VALUES (?, ?, ?, ?, ?, ?)", start_daten)
+            self.cursor.executemany("INSERT INTO teile (baugruppe, pos, codice, qta, desc_de) VALUES (?, ?, ?, ?, ?)", start_daten)
             self.conn.commit()
 
     def baugruppe_gewechselt(self, event):
-        """Wird aufgerufen, wenn im Dropdown eine andere Baugruppe gewählt wird."""
         auswahl = self.combo_baugruppe.get()
         bild_datei = self.baugruppen_bilder[auswahl]
         self.lade_bild(bild_datei)
         
-        # Tabelle und Eingabefeld leeren, da wir jetzt bei einer neuen Zeichnung sind
         self.eingabe_pos.delete(0, tk.END)
         for item in self.tree.get_children():
             self.tree.delete(item)
         self.result_frame.pack_forget()
 
     def lade_bild(self, dateiname):
-        """Lädt das Bild in den linken Frame."""
         if os.path.exists(dateiname):
             try:
                 img = Image.open(dateiname)
@@ -142,7 +134,6 @@ class ErsatzteilApp:
             self.bild_label.config(text=f"Bild '{dateiname}' nicht gefunden.", fg="red", font=("Segoe UI", 12))
 
     def suche_teil(self):
-        """Durchsucht die SQL-Datenbank nach POS und der aktuellen Baugruppe."""
         eingabe = self.eingabe_pos.get().strip()
         aktuelle_baugruppe = self.combo_baugruppe.get()
         
@@ -160,12 +151,12 @@ class ErsatzteilApp:
             if pos == "":
                 continue
             
-            # WICHTIG: Hier suchen wir jetzt nach 'pos' UND 'baugruppe'
-            self.cursor.execute("SELECT codice, qta, desc_de, desc_it FROM teile WHERE pos = ? AND baugruppe = ?", (pos, aktuelle_baugruppe))
+            # Holt nur noch codice, qta und desc_de
+            self.cursor.execute("SELECT codice, qta, desc_de FROM teile WHERE pos = ? AND baugruppe = ?", (pos, aktuelle_baugruppe))
             ergebnis = self.cursor.fetchone()
             
             if ergebnis:
-                self.tree.insert("", tk.END, values=(pos, ergebnis[0], ergebnis[1], ergebnis[2], ergebnis[3]))
+                self.tree.insert("", tk.END, values=(pos, ergebnis[0], ergebnis[1], ergebnis[2]))
                 treffer_gefunden = True
             else:
                 nicht_gefunden.append(pos)
