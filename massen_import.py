@@ -6,7 +6,8 @@ import sqlite3
 
 
 
-# =====================================================================
+
+# =========================================================
 
 def daten_importieren():
     """Importiert die Liste NEUE_DATEN in die SQLite-Datenbank."""
