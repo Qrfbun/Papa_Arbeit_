@@ -12,25 +12,24 @@ class ErsatzteilApp:
         self.root.configure(bg="#f4f4f9")
 
         # --- ZUORDNUNG: BAUGRUPPE -> BILDDATEI ---
+        # Die Namen wurden an die Bezeichnungen im PDF (CR-Gruppen) angepasst
         self.baugruppen_bilder = {
             "Basamento (CR-01)": "Fimap_GL_Pro_01.jpg",
             "Motoriduttore (CR-01A)": "Fimap_GL_Pro_01A.jpg",
             "Tergipavimento (CR-03)": "Fimap_GL_Pro_03.jpg",
-            "Name Baugruppe 4 (CR-04)": "Fimap_GL_Pro_04.jpg",
-            "Name Baugruppe 5 (CR-05)": "Fimap_GL_Pro_05.jpg",
-            "Name Baugruppe 6 (CR-06)": "Fimap_GL_Pro_06.jpg",
-            "Name Baugruppe 7 (CR-07)": "Fimap_GL_Pro_07.jpg",
-            "Name Baugruppe 8 (CR-08)": "Fimap_GL_Pro_08.jpg",
-            "Name Baugruppe 9 (CR-09)": "Fimap_GL_Pro_09.jpg",
-            "Name Baugruppe 10 (CR-10)": "Fimap_GL_Pro_10.jpg",
-            "Name Baugruppe 11 (CR-11)": "Fimap_GL_Pro_11.jpg",
-            "Name Baugruppe 12 (CR-12)": "Fimap_GL_Pro_12.jpg",
-            "Name Baugruppe 13 (CR-13)": "Fimap_GL_Pro_13.jpg",
-            "Name Baugruppe 14 (CR-14)": "Fimap_GL_Pro_14.jpg",
-            "Name Baugruppe 15 (CR-15)": "Fimap_GL_Pro_15.jpg",
-            "Name Baugruppe 16 (CR-16)": "Fimap_GL_Pro_16.jpg",
-            "Name Baugruppe 17 (CR-17)": "Fimap_GL_Pro_17.jpg",
-            "Name Baugruppe 18 (CR-18)": "Fimap_GL_Pro_18.jpg"
+            "Telaio (CR-04/05)": "Fimap_GL_Pro_04.jpg",
+            "Serbatoi (CR-06/07)": "Fimap_GL_Pro_06.jpg",
+            "Serbatoi Antibatterico (CR-06/07)": "Fimap_GL_Pro_06_AB.jpg",
+            "Aspirazione (CR-08)": "Fimap_GL_Pro_08.jpg",
+            "Impianto Idrico (CR-09)": "Fimap_GL_Pro_09.jpg",
+            "Impianto Elettrico (CR-10)": "Fimap_GL_Pro_10.jpg",
+            "Manubrio (CR-11)": "Fimap_GL_Pro_11.jpg",
+            "Caricabatterie (CR-13)": "Fimap_GL_Pro_13.jpg",
+            "Flotta WiFi (CR-14)": "Fimap_GL_Pro_14_WiFi.jpg",
+            "Flotta GSM EU (CR-14)": "Fimap_GL_Pro_14_EU.jpg",
+            "Flotta GSM USA (CR-14)": "Fimap_GL_Pro_14_USA.jpg",
+            "Flotta GSM JP-AUS (CR-14)": "Fimap_GL_Pro_14_JP.jpg",
+            "Etichette (CR-16)": "Fimap_GL_Pro_16.jpg"
         }
 
         # Liste der Baugruppen-Namen für die Navigation und aktueller Index
@@ -41,7 +40,6 @@ class ErsatzteilApp:
         self.init_datenbank()
 
         # --- UI LAYOUT ---
-        # Oberer Bereich für Navigation (Vor/Zurück)
         self.top_frame = tk.Frame(root, bg="#f4f4f9")
         self.top_frame.pack(fill=tk.X, padx=20, pady=10)
 
@@ -104,11 +102,10 @@ class ErsatzteilApp:
         scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.pack(fill=tk.BOTH, expand=True)
 
-        # UI initial auf den ersten Status setzen
         self.update_buttons()
 
     def init_datenbank(self):
-        """Erstellt die SQL-Datenbank (desc_it wurde entfernt)."""
+        """Erstellt die SQL-Datenbank und füllt sie mit allen Daten aus dem PDF."""
         self.conn = sqlite3.connect("ersatzteile.db")
         self.cursor = self.conn.cursor()
 
@@ -123,115 +120,171 @@ class ErsatzteilApp:
             )
         ''')
 
-        # Start-Testdaten einfügen, falls die DB leer ist (optional)
+        # Prüfen, ob die Datenbank frisch ist
         self.cursor.execute("SELECT COUNT(*) FROM teile")
         if self.cursor.fetchone()[0] == 0:
+            print("Importiere PDF-Daten in die Datenbank...")
+            # Komplette Liste der aus dem PDF extrahierten Teile
             start_daten = [
+                # Basamento (CR-01)
                 ("Basamento (CR-01)", "1", "451400", "2", "RING"),
                 ("Basamento (CR-01)", "2", "451405", "1", "KUPPLUNG HINTERE"),
                 ("Basamento (CR-01)", "3", "409819", "1", "STÜTZPLATTE"),
+                ("Basamento (CR-01)", "4", "451545", "2", "BUCHSE"),
+                ("Basamento (CR-01)", "5", "451546", "2", "BUCHSE"),
+                ("Basamento (CR-01)", "6", "451366", "1", "ABDECKUNG"),
+                ("Basamento (CR-01)", "7", "451403", "1", "KUPPLUNG VORDERE"),
+                ("Basamento (CR-01)", "8", "451391", "1", "BASISSTÜTZRAD"),
+                ("Basamento (CR-01)", "9", "409151", "4", "UNTERLAGSCHEIBE"),
+                ("Basamento (CR-01)", "10", "409177", "4", "SCHEIBE"),
+                ("Basamento (CR-01)", "11", "409154", "4", "UNTERLAGSCHEIBE"),
+                ("Basamento (CR-01)", "12", "409187", "4", "UNTERLAGSCHEIBE"),
+                ("Basamento (CR-01)", "13", "451402", "1", "HALTERUNG"),
+                ("Basamento (CR-01)", "14", "451972", "1", "VELCRO DOUBLE"),
+                ("Basamento (CR-01)", "15", "442958", "7", "SCHRAUBE"),
+                ("Basamento (CR-01)", "16", "408848", "1", "SCHRAUBE"),
+                ("Basamento (CR-01)", "17", "407645", "4", "SCHRAUBE"),
+                ("Basamento (CR-01)", "18", "428350", "2", "SCHRAUBE"),
+                ("Basamento (CR-01)", "19", "452154", "2", "SCHRAUBE"),
+
+                # Motoriduttore (CR-01A)
                 ("Motoriduttore (CR-01A)", "1", "451549", "1", "GEWINDEWELLE"),
                 ("Motoriduttore (CR-01A)", "2", "439931", "2", "BUCHSE"),
-                ("Motoriduttore (CR-01A)", "3", "415901", "2", "MUTTER")
-            ]
-            self.cursor.executemany("INSERT INTO teile (baugruppe, pos, codice, qta, desc_de) VALUES (?, ?, ?, ?, ?)", start_daten)
-            self.conn.commit()
+                ("Motoriduttore (CR-01A)", "3", "415901", "2", "MUTTER"),
+                ("Motoriduttore (CR-01A)", "4", "410277", "1", "BRIDE"),
+                ("Motoriduttore (CR-01A)", "5", "451365", "1", "PINSELHALTERFLANSCH"),
+                ("Motoriduttore (CR-01A)", "6", "451547", "1", "FEDER"),
+                ("Motoriduttore (CR-01A)", "7", "408119", "1", "FEDER"),
+                ("Motoriduttore (CR-01A)", "8", "229685", "1", "GETRIEBEMOTOR KOMPLETT"),
+                ("Motoriduttore (CR-01A)", "9", "409161", "2", "SCHEIBE"),
+                ("Motoriduttore (CR-01A)", "10", "451363", "1", "BÜRSTENMOTORHALTER"),
+                ("Motoriduttore (CR-01A)", "11", "415780", "1", "SCHRAUBE"),
+                ("Motoriduttore (CR-01A)", "12", "408966", "4", "SCHRAUBE"),
+                ("Motoriduttore (CR-01A)", "13", "407667", "2", "SCHRAUBE"),
+                ("Motoriduttore (CR-01A)", "14", "451751", "1", "BÜRSTE (PPL Ø0,35)"),
+                ("Motoriduttore (CR-01A)", "15", "451752", "1", "BÜRSTE (PPL Ø0,6)"),
+                ("Motoriduttore (CR-01A)", "16", "451753", "1", "BÜRSTE (PPL Ø0,9)"),
+                ("Motoriduttore (CR-01A)", "17", "451754", "1", "BÜRSTE (SCHLEIFMITTEL)"),
+                ("Motoriduttore (CR-01A)", "18", "451755", "1", "TREIBTELLERS"),
 
-    def vorherige_baugruppe(self):
-        """Wechselt zur vorherigen Baugruppe in der Liste."""
-        if self.aktuelle_baugruppe_index > 0:
-            self.aktuelle_baugruppe_index -= 1
-            self.aktualisiere_ansicht()
+                # Tergipavimento (CR-03)
+                ("Tergipavimento (CR-03)", "1", "451553", "8", "BUCHSE"),
+                ("Tergipavimento (CR-03)", "2", "451558", "2", "BUCHSE"),
+                ("Tergipavimento (CR-03)", "3", "451559", "2", "BUCHSE"),
+                ("Tergipavimento (CR-03)", "4", "451557", "2", "GEWINDEBOLZEN"),
+                ("Tergipavimento (CR-03)", "5", "451407", "1", "SAUGFUSS VORNE"),
+                ("Tergipavimento (CR-03)", "6", "451409", "1", "SAUGFUSS VORNE"),
+                ("Tergipavimento (CR-03)", "7", "408905", "2", "MADENSCHRAUBE"),
+                ("Tergipavimento (CR-03)", "8", "442956", "2", "FEDER"),
+                ("Tergipavimento (CR-03)", "9", "451556", "4", "BOLZEN"),
+                ("Tergipavimento (CR-03)", "10", "410225", "2", "KUGELGRIF"),
+                ("Tergipavimento (CR-03)", "11", "229809", "1", "LEISTE"),
+                ("Tergipavimento (CR-03)", "12", "451561", "2", "POLYURETHANRAD"),
+                ("Tergipavimento (CR-03)", "13", "451560", "4", "POLYURETHANRAD"),
+                ("Tergipavimento (CR-03)", "14", "442958", "6", "SCHRAUBE"),
+                ("Tergipavimento (CR-03)", "15", "428317", "2", "SCHRAUBE"),
+                ("Tergipavimento (CR-03)", "16", "447887", "2", "HANDGRIFF"),
+                ("Tergipavimento (CR-03)", "17", "229849", "1", "SAUGGUMMI SAUGFUSS KOMPLETT (PARA 33Sh)"),
+                ("Tergipavimento (CR-03)", "18", "229850", "1", "SAUGGUMMI SAUGFUSS KOMPLETT (PARA 40Sh)"),
+                ("Tergipavimento (CR-03)", "19", "229851", "1", "SAUGGUMMI SAUGFUSS KOMPLETT (PU 40Sh)"),
+                
+                # Telaio (CR-04/05)
+                ("Telaio (CR-04/05)", "1", "451423", "2", "ARRETIERUNG"),
+                ("Telaio (CR-04/05)", "2", "451581", "2", "BUCHSE"),
+                ("Telaio (CR-04/05)", "3", "451899", "1", "KABEL"),
+                ("Telaio (CR-04/05)", "4", "451593", "1", "SCHLIESSUNG"),
+                ("Telaio (CR-04/05)", "5", "424822", "1", "RIEMEN"),
+                ("Telaio (CR-04/05)", "6", "451399", "1", "DECKEL"),
+                ("Telaio (CR-04/05)", "7", "409038", "1", "SICHERUNGSMUTTER"),
+                ("Telaio (CR-04/05)", "8", "416781", "1", "SICHERUNGSMUTTER"),
+                ("Telaio (CR-04/05)", "9", "409085", "4", "SICHERUNGSMUTTER"),
+                ("Telaio (CR-04/05)", "10", "415906", "2", "STOPMUTTER"),
+                ("Telaio (CR-04/05)", "11", "451582", "2", "DISTANZHÜLSE"),
+                ("Telaio (CR-04/05)", "12", "452024", "1", "DISTANZHÜLSE"),
+                ("Telaio (CR-04/05)", "13", "410277", "15", "BRIDE"),
+                ("Telaio (CR-04/05)", "14", "451413", "1", "HAKEN"),
+                ("Telaio (CR-04/05)", "15", "451923", "1", "GUMMIDCHTUNG"),
+                ("Telaio (CR-04/05)", "16", "430184", "2", "MAGNET"),
+                ("Telaio (CR-04/05)", "17", "451398", "1", "HANDGRIFF"),
+                ("Telaio (CR-04/05)", "18", "439924", "1", "FEDER"),
+                ("Telaio (CR-04/05)", "19", "230343", "1", "TAPE"),
+                ("Telaio (CR-04/05)", "20", "451396", "1", "DECKEL"),
+                ("Telaio (CR-04/05)", "21", "451591", "1", "KABELDURCHGANG"),
+                ("Telaio (CR-04/05)", "22", "451411", "1", "PEDAL"),
+                ("Telaio (CR-04/05)", "23", "441005", "2", "BOLZEN"),
+                ("Telaio (CR-04/05)", "24", "451426", "2", "UNTERLAGSCHEIBE SPEZIAL"),
+                ("Telaio (CR-04/05)", "25", "409151", "2", "UNTERLAGSCHEIBE"),
+                ("Telaio (CR-04/05)", "26", "409177", "4", "SCHEIBE"),
+                ("Telaio (CR-04/05)", "27", "451584", "1", "ROLLE"),
+                ("Telaio (CR-04/05)", "28", "451573", "2", "RAD"),
+                ("Telaio (CR-04/05)", "29", "408346", "1", "SEEGERRING"),
+                ("Telaio (CR-04/05)", "30", "408355", "1", "SEEGERRING"),
+                ("Telaio (CR-04/05)", "31", "451588", "2", "HALTERUNG"),
+                ("Telaio (CR-04/05)", "32", "451708", "1", "RAHMEN"),
+                ("Telaio (CR-04/05)", "33", "229861", "1", "ROHR"),
+                ("Telaio (CR-04/05)", "34", "441077", "4", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "35", "438688", "2", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "36", "408833", "2", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "37", "423644", "5", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "38", "418309", "4", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "39", "418312", "2", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "40", "407645", "1", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "41", "407651", "1", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "42", "440337", "4", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "43", "451592", "2", "SCHRAUBE"),
+                ("Telaio (CR-04/05)", "44", "451899", "1", "STROMKABEL"),
+                ("Telaio (CR-04/05)", "45", "229862", "1", "BATTERIEGRUPPE (12V 33Ah)"),
+                ("Telaio (CR-04/05)", "45.1", "451787", "2", "BATTERIE (12V 33Ah)"),
+                ("Telaio (CR-04/05)", "45.2", "451900", "1", "BATTERIEKABEL"),
+                ("Telaio (CR-04/05)", "45.3", "451901", "1", "BATTERIEBRÜCKENKABEL"),
+                ("Telaio (CR-04/05)", "46", "229891", "1", "BATTERIEGRUPPE (12V 26Ah)"),
+                ("Telaio (CR-04/05)", "46.1", "451790", "2", "BATTERIE (12V 26Ah Pb)"),
+                ("Telaio (CR-04/05)", "46.2", "452535", "1", "BATTERIEKABEL"),
+                ("Telaio (CR-04/05)", "46.3", "451976", "1", "BATTERIEBRÜCKENKABEL"),
+                ("Telaio (CR-04/05)", "47", "229863", "1", "BATTERIEGRUPPE (12V 36Ah)"),
+                ("Telaio (CR-04/05)", "47.1", "451788", "2", "BATTERIE (12V 36Ah Pb)"),
+                ("Telaio (CR-04/05)", "47.2", "452535", "1", "BATTERIEKABEL"),
+                ("Telaio (CR-04/05)", "47.3", "451976", "1", "BATTERIEBRÜCKENKABEL"),
+                ("Telaio (CR-04/05)", "48", "230701", "1", "BATTERIEGRUPPE (24V 30Ah LITHIUM)"),
+                ("Telaio (CR-04/05)", "48.1", "453782", "1", "BATTERIE (24V 30Ah)"),
+                ("Telaio (CR-04/05)", "48.2", "452535", "1", "BATTERIEKABEL"),
 
-    def naechste_baugruppe(self):
-        """Wechselt zur nächsten Baugruppe in der Liste."""
-        if self.aktuelle_baugruppe_index < len(self.baugruppen_namen) - 1:
-            self.aktuelle_baugruppe_index += 1
-            self.aktualisiere_ansicht()
-
-    def update_buttons(self):
-        """Deaktiviert die Buttons am Anfang oder Ende der Liste."""
-        if self.aktuelle_baugruppe_index == 0:
-            self.btn_zurueck.config(state=tk.DISABLED, bg="#ecf0f1")
-        else:
-            self.btn_zurueck.config(state=tk.NORMAL, bg="#bdc3c7")
-
-        if self.aktuelle_baugruppe_index == len(self.baugruppen_namen) - 1:
-            self.btn_vor.config(state=tk.DISABLED, bg="#ecf0f1")
-        else:
-            self.btn_vor.config(state=tk.NORMAL, bg="#bdc3c7")
-
-    def aktualisiere_ansicht(self):
-        """Aktualisiert Titel, Bild und leert die Suchergebnisse nach einem Wechsel."""
-        aktuelle_baugruppe = self.baugruppen_namen[self.aktuelle_baugruppe_index]
-        bild_datei = self.baugruppen_bilder[aktuelle_baugruppe]
-        
-        # UI aktualisieren
-        self.lbl_baugruppe_name.config(text=aktuelle_baugruppe)
-        self.lade_bild(bild_datei)
-        self.update_buttons()
-        
-        # Suchfeld und Tabelle leeren
-        self.eingabe_pos.delete(0, tk.END)
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-        self.result_frame.pack_forget()
-
-    def lade_bild(self, dateiname):
-        if os.path.exists(dateiname):
-            try:
-                img = Image.open(dateiname)
-                img.thumbnail((650, 650))
-                self.photo = ImageTk.PhotoImage(img)
-                self.bild_label.config(image=self.photo, text="")
-            except Exception as e:
-                self.bild_label.config(text=f"Fehler beim Laden:\n{e}", fg="red")
-        else:
-            self.bild_label.config(text=f"Bild '{dateiname}' nicht gefunden.", fg="red", font=("Segoe UI", 12))
-
-    def suche_teil(self):
-        eingabe = self.eingabe_pos.get().strip()
-        aktuelle_baugruppe = self.baugruppen_namen[self.aktuelle_baugruppe_index]
-        
-        if not eingabe:
-            return
-
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        such_nummern = [num.strip() for num in eingabe.split(",")]
-        treffer_gefunden = False
-        nicht_gefunden = []
-
-        for pos in such_nummern:
-            if pos == "":
-                continue
-            
-            # Holt codice, qta und desc_de für die aktuell angezeigte Baugruppe
-            self.cursor.execute("SELECT codice, qta, desc_de FROM teile WHERE pos = ? AND baugruppe = ?", (pos, aktuelle_baugruppe))
-            ergebnis = self.cursor.fetchone()
-            
-            if ergebnis:
-                self.tree.insert("", tk.END, values=(pos, ergebnis[0], ergebnis[1], ergebnis[2]))
-                treffer_gefunden = True
-            else:
-                nicht_gefunden.append(pos)
-
-        if treffer_gefunden:
-            self.result_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        else:
-            self.result_frame.pack_forget()
-
-        if nicht_gefunden:
-            messagebox.showwarning("Hinweis", f"Folgende Positionen gibt es in '{aktuelle_baugruppe}' nicht:\n{', '.join(nicht_gefunden)}")
-
-    def __del__(self):
-        if hasattr(self, 'conn'):
-            self.conn.close()
-
-if __name__ == "__main__":
-    fenster = tk.Tk()
-    style = ttk.Style()
-    style.theme_use("clam")
-    app = ErsatzteilApp(fenster)
-    fenster.mainloop()
+                # Serbatoi (CR-06/07)
+                ("Serbatoi (CR-06/07)", "1", "451379", "1", "DECKEL"),
+                ("Serbatoi (CR-06/07)", "2", "451388", "1", "ABDECKUNG"),
+                ("Serbatoi (CR-06/07)", "3", "451384", "1", "ABDECKUNG"),
+                ("Serbatoi (CR-06/07)", "4", "451386", "1", "SCHARNIER"),
+                ("Serbatoi (CR-06/07)", "5", "451377", "1", "DECKEL"),
+                ("Serbatoi (CR-06/07)", "6", "451382", "1", "DECKEL"),
+                ("Serbatoi (CR-06/07)", "7", "410277", "2", "ABRAZADERA"),
+                ("Serbatoi (CR-06/07)", "8", "451429", "1", "FILTER"),
+                ("Serbatoi (CR-06/07)", "9", "451594", "1", "FILTER"),
+                ("Serbatoi (CR-06/07)", "10", "451595", "1", "FILTER"),
+                ("Serbatoi (CR-06/07)", "11", "451703", "1", "FILTER"),
+                ("Serbatoi (CR-06/07)", "12", "229773", "1", "DICHTUNG"),
+                ("Serbatoi (CR-06/07)", "13", "428561", "2", "DICHTUNG"),
+                ("Serbatoi (CR-06/07)", "14", "451605", "2", "DICHTUNG"),
+                ("Serbatoi (CR-06/07)", "15", "421744", "1", "KUPPLUNG OHNE ZAPFEN"),
+                ("Serbatoi (CR-06/07)", "16", "430184", "1", "MAGNET"),
+                ("Serbatoi (CR-06/07)", "17", "451417", "1", "HANDGRIFF"),
+                ("Serbatoi (CR-06/07)", "18", "451867", "1", "SCHALLDICHTUNG"),
+                ("Serbatoi (CR-06/07)", "19", "451868", "1", "SCHALLDICHTUNG"),
+                ("Serbatoi (CR-06/07)", "20", "451604", "2", "BOLZEN"),
+                ("Serbatoi (CR-06/07)", "21", "451370", "1", "WINKELVERSCHRAUBUNG"),
+                ("Serbatoi (CR-06/07)", "22", "451369", "1", "WINKELVERSCHRAUBUNG"),
+                ("Serbatoi (CR-06/07)", "23", "428562", "2", "WINKELVERSCHRAUBUNG"),
+                ("Serbatoi (CR-06/07)", "24", "452208", "2", "UNTERLAGSCHEIBE"),
+                ("Serbatoi (CR-06/07)", "25", "451426", "1", "UNTERLAGSCHEIBE SPEZIAL"),
+                ("Serbatoi (CR-06/07)", "26", "409141", "1", "UNTERLAGSCHEIBE"),
+                ("Serbatoi (CR-06/07)", "27", "409151", "5", "UNTERLAGSCHEIBE"),
+                ("Serbatoi (CR-06/07)", "28", "409154", "7", "UNTERLAGSCHEIBE"),
+                ("Serbatoi (CR-06/07)", "29", "451869", "4", "UNTERLAGSCHEIBE"),
+                ("Serbatoi (CR-06/07)", "30", "400250", "9", "UNTERLAGSCHEIBE SPEZIAL"),
+                ("Serbatoi (CR-06/07)", "31", "451707", "1", "SCHMUTZWASSERTANK"),
+                ("Serbatoi (CR-06/07)", "31.1", "451709", "1", "KAPPE MIT FEDER"),
+                ("Serbatoi (CR-06/07)", "32", "451705", "1", "FRISCHWASSERTANK"),
+                ("Serbatoi (CR-06/07)", "33", "451710", "1", "HALTERUNG"),
+                ("Serbatoi (CR-06/07)", "34", "451375", "2", "HALTERUNG"),
+                ("Serbatoi (CR-06/07)", "35", "451389", "1", "LADEKAPPE"),
+                ("Serbatoi (CR-06/07)", "36", "451570", "1", "ROHR"),
+                ("Serbatoi (CR-06/07)", "37", "451569", "1", "ROHR"),]
