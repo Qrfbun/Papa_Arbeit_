@@ -11,9 +11,9 @@ class ErsatzteilKatalog:
         # --- DATENBANK ---
         # Hier trägst du deine Bilder und die dazugehörigen Titel ein
         self.seiten = [
-            {"bild": "zeichung-seite8.jpg", "titel": "GL PRO - Gruppo Basamento (Seite 8)"},
-            {"bild": "zeichung-seite10.jpg", "titel": "GL PRO - Motor (Seite 10)"},
-            {"bild": "zeichung-seite12.jpg", "titel": "GL PRO - Squeegee (Seite 12)"}
+            {"bild": "Fimap_GL_Pro_01.jpg", "titel": "GL PRO - Gruppo Basamento (Seite 8)"},
+            {"bild": "Fimap_GL_Pro_01A.jpg", "titel": "GL PRO - Motor (Seite 10)"},
+            {"bild": "Fimap_GL_Pro_03.jpg", "titel": "GL PRO - Squeegee (Seite 12)"}
         ]
         self.aktuelle_seite = 0
 
